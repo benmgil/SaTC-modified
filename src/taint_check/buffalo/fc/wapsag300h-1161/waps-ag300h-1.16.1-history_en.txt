@@ -1,0 +1,251 @@
+﻿*************************************************************************
+*     WAPS-AG300H Firmware Version History                              *
+*                                                                       *
+*                                      Version 1.16.1 (2015/10/28)      *
+*                                       Copyright 2015 Buffalo Inc.     *
+*************************************************************************
+
+This is the version history for WAPS-AG300H firmware. Refer to the release
+notes for updating instructions and notes.
+ ------------------------------------------------------------------------
+ Version 1.16.1 (release date: 2015/10/28)
+ ------------------------------------------------------------------------
+Additional features from v1.14.0 to v1.16.1 are listed below:
+
+(WLS-ADT)
+ - Now supports group administration for WLS-ADT.
+
+
+ ------------------------------------------------------------------------
+Modified features from v1.14.0 to v1.16.1 are listed below:
+
+(Firmware Update）
+ - Disables wireless functionality during firmware update because firmware may not be updated successfully when wireless functionality is enabled. Because of this modification, the progress bar will not refresh if the device is connected to the AirStation wirelessly. After the diag LED turns off, log in to Settings and check if the firmware version was updated.
+
+(Wireless)
+ - "STA Exceed maximum STA number of SSID." message will be displayed on syslog when the maximum number of connected devices (configured in "Load Balancing" section on "Security" page) is reached.
+
+ - The signal strength displayed on "Wireless Monitor" and "Clients" page is described using RSSI(dBm).
+
+(RADIUS)
+ - Session timeout will be 60 seconds when an unconfigurable value (1-59 seconds) is set.
+
+
+ ------------------------------------------------------------------------
+Fixed bugs from v1.14.0 to v1.16.1 are listed below:
+
+(Wireless)
+ - Fixed the issue where 11g beacon sometimes stopped.
+
+(VLAN)
+ - Fixed the issue where multiple VLAN settings did not function properly.
+
+(RADIUS)
+ - Modified to reauthenticate without disconnecting wireless connection from a client after the session timeout if "Termination Action" attribute is "RADIUS-Request".
+
+ - Fixed the issue where some wireless clients could not be authenticated using EAP authentication.
+
+(WDS)
+ - Fixed the issue where the AirStation sometimes could not communicate with any registered access points when a MAC address on the access point list was deleted on [Wireless Settings] - [WDS] page.
+
+ - Fixed the issue where the wireless throughput sometimes dropped about 10-20% if VLAN settings of wired interface or WDS interface were changed when using WDS.
+
+(USB Log)
+ - Fixed the issue where the previous boot's log was overwritten after restarting the AirStation when the log was configured to be transferred to a USB device.
+
+(SNMP)
+ - Fixed the issue where the number of packets could not be obtained properly from "ifInUcastPkts" object.
+
+(system)
+ - Fixed the issue where the AirStation sometimes hanged up.
+
+(syslog)
+ - Fixed the issue where the "ICV error" log was put out excessively when using WDS.
+
+
+ ------------------------------------------------------------------------
+ Version 1.14.0 (release date: 2014/11/17)
+ ------------------------------------------------------------------------
+No features were added from v1.12.5 to v1.14.0.
+
+
+ ------------------------------------------------------------------------
+Modified features from v1.12.5 to v1.14.0 are listed below:
+
+(Wireless)
+ - Changed the unit of signal strength on the clients and wireless monitor pages from % to dBm.
+
+ - Fixed RADIUS packets to not configure "Don't Fragment" bits.
+
+
+ ------------------------------------------------------------------------
+Fixed bugs from v1.12.5 to v1.14.0 are listed below:
+
+(Wireless)
+ - Fixed the issue where devices were unable to communicate when some tablets connect to the AirStation.
+
+ - Fixed the issue where MAC RADIUS was authenticating unnecessarily after the session was timed out.
+
+ - Fixed the issue where devices were unable to connect to the RADIUS server if name resolution failed when the RADIUS server was specified by hostname.
+
+(BN-ADT)
+ - Fixed the issue with wireless functionality becoming disabled when basic settings were configured without switching to group mode from BN-ADT.
+
+(System)
+ - Fixed the issue with the AirStation rebooting involuntarily.
+
+ - Fixed the issue where time cannot be obtained from NTP server sometimes.
+
+(Syslog)
+ - Now the boot information log is transferred to syslog server.
+
+
+ ------------------------------------------------------------------------
+ Version 1.12.5 (release date: 2014/03/10)
+ ------------------------------------------------------------------------
+New features from v1.10.1 to v1.12.5 are listed below:
+
+(VLAN)
+ - Added multiple VLAN functionality.
+You can configure an additional VLAN ID by selecting "Multiple" from each wired port or the SSID's VLAN mode. If enabled, the specified VLAN ID and additional VLAN ID can be transferred.
+
+
+ ------------------------------------------------------------------------
+Modified features from v1.10.1 to v1.12.5 are listed below:
+
+(Wireless)
+- Now you can choose "Basic Rate" from each bandwidth of the rate set (11n 1x and 11n 2x) when you select "User-defined" for the wireless band.
+
+(RADIUS)
+- MAC RADIUS authentication now allows re-authentication when a session times out.
+
+(WebUI)
+- When a USB device consumes excessive power, the following message is displayed: 
+  "Connected USB device cannot be used due to excessive power consumption." 
+
+
+ ------------------------------------------------------------------------
+Fixed bugs from v1.10.1 to v1.12.5 are listed below:
+
+(Proxy ARP)
+- ARP requests between wireless clients with the same SSID may be replied by proxy if proxy ARP is enabled. 
+
+(Wireless)
+- Fixed the problem of wireless communication not being available when the device's internal temperature fluctuates between extreme temperature variations.
+
+ - Communication with connected wireless clients can now be established immediately when a wireless client roams.
+
+(VLAN)
+ - Fixed the communication failure between untagged ports in the following situation: 
+2 WAPS-AG300Hs are connected by WDS that is set to "Tagged". 2 wired ports of one WAPS-AG300H are set to "Tagged" and the other's ports are set to "Untagged".
+
+(BN-ADT, WL-ADT)
+ - Now all configuration from BN-ADT and WL-ADT can be saved correctly.
+
+ - Fixed the problem of wireless clients from other VLANs than the management VLAN not being counted as wireless clients.
+
+ - Fixed the problem of automatically chosen channels not displaying correctly in WL-ADT.
+
+(RADIUS)
+- Fixed session timeouts with RADIUS server and IEEE802.1x/EAP authentication.
+
+(LED)
+ - Fixed the LED controls when the 11a beacon interval is set to 50 ms or less.
+
+
+ ------------------------------------------------------------------------
+ Version 1.10.1 (release date: 2013/11/06)
+ ------------------------------------------------------------------------
+Additional features from v1.8.4 to v1.10.1 are listed below:
+
+(System)
+ - Added "Packet Information" page. This displays communication statistics and the status of each port.
+
+ - Added "CPU Monitor" page. This monitors the operational status and displays usage of the CPU.
+
+ - Added "Ping Test" page. A ping test can now be executed to check whether the AirStation can communicate with a specific network device.
+
+ - Added "Traceroute Test" page. A traceroute test can now be executed to check where the packet goes through.
+
+
+ ------------------------------------------------------------------------
+Modified features from v1.8.4 to v1.10.1 are listed below:
+
+(SNMP)
+ - Modified specification to return the "mib-2.ip.ipAddrTable(.1.3.6.1.2.1.4.20)" value.
+
+
+ ------------------------------------------------------------------------
+Fixed bugs from v1.8.4 to v1.10.1 are listed below:
+
+(Proxy ARP)
+ - Fixed the problem of Proxy ARP answering by deputy to ARP request for wired port when it is enabled.
+
+(BN-ADT)
+ - Fixed the problem where if a wired port has no untagged port belonging to the management VLAN, a BN-ADT settings error occurs. Now no error occurs when a wired port has a tagged port.
+
+ - Fixed the problem where the AirStation automatically reboots after using BN-ADT to restore settings.
+
+
+ ------------------------------------------------------------------------
+ Version 1.8.4 (release date: 2013/06/03)
+ ------------------------------------------------------------------------
+Additional features from v1.4.4 to v1.8.4 are listed below:
+
+(Wireless)
+ - Added wireless monitoring. This detects wireless access points within range of the AirStation.
+
+ - Added "EZ Analyzer". Note that this feature is disabled until the optional antenna is released.
+
+(RADIUS)
+ - Added RADIUS accounting. 
+
+(ProxyARP)
+ - Added Proxy ARP. This enables rerouting ARP packets to where they're needed instead of to the designated host. This will decrease overall network traffic, improve performance, and save power.
+
+(SNMP)
+ - Now supports SNMP v3 and SNMP trap.
+
+(Bridge)
+ - Added support for the Rapid Spanning Tree protocol.
+
+ - Added BPDU forwarding. You can enable or disable BPDU forwarding Rapid Spanning Tree is disabled.
+
+
+(I'm Here)
+ - Added "I'm Here" feature. The AirStation sounds a chime on command to clarify its location.
+
+
+ ------------------------------------------------------------------------
+Modified features from v1.4.4 to v1.8.4 are listed below:
+
+(Wireless)
+ - Changed the specification to use "Multicast Rate" settings for transmission of wireless broadcast packets.
+
+ - Now you can register multiple MAC addresses at once from the MAC section.
+
+
+(RADIUS)
+ - Now you can specify a RADIUS server by hostname.
+
+ ------------------------------------------------------------------------
+Fixed bugs from v1.4.4 to v1.8.4 are listed below:
+
+(Wireless)
+ - Resolved throughput issue with 11g connection of some clients.
+
+ - Resolved issue of maximum number of clients not being able to connect with WDS.
+
+ - Resolved issue where deleting a MAC address from the MAC filtering list sometimes deleted all MAC addresses.
+
+(LAN)
+ - Resolved issue of incorrect communication rate displayed in "System Information" when the wired LAN port's "Speed & Duplex" was set to "Auto".
+
+
+ ------------------------------------------------------------------------
+ Version 1.4.4 (release date: 2012/12/01)
+ ------------------------------------------------------------------------
+ 
+ First release.
+
+ ------------------------------------------------------------------------

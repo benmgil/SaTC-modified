@@ -1,0 +1,931 @@
+
+AIRSTATION-PRO-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, enterprises, Integer32, Counter32, NOTIFICATION-TYPE
+		FROM SNMPv2-SMI
+	ifIndex
+		FROM IF-MIB
+	TruthValue, MacAddress
+		FROM SNMPv2-TC;
+
+airstationPro MODULE-IDENTITY
+	LAST-UPDATED "201403211729Z"
+	ORGANIZATION "BUFFALO Inc."
+	CONTACT-INFO 
+		"URI: http://buffalo.jp/products/b-solutions/
+		 Contact: Daisuke YAMADA
+		  BUFFALO Inc. 
+		  3-30-20 Osu, Naka-ku, Nagoya city, Aichi, JAPAN"
+	DESCRIPTION
+		"Management Information Base module for BUFFALO AirStationPro
+		 Intelligent IEEE802.11 Accesspoint series.
+		 (c)2009-2014 BUFFALO Inc. All rights reserved."
+
+	-- revision history
+
+	REVISION	 "201403211729Z"
+	DESCRIPTION	 "Fix syntax error."
+
+	REVISION	 "201011010000Z"
+	DESCRIPTION	 "Initial version."
+
+	::= {enterprises buffalo(5227) 18}
+
+-- buffalo								OBJECT IDENTIFIER ::= {enterprises 5227}
+aspClientMonitorGroup				OBJECT IDENTIFIER ::= {airstationPro 1}
+aspApMonitorGroup					OBJECT IDENTIFIER ::= {airstationPro 2}
+aspWlanGroup						OBJECT IDENTIFIER ::= {airstationPro 3}
+aspInterfaceGroup					OBJECT IDENTIFIER ::= {airstationPro 4}
+aspSystemInfoGroup					OBJECT IDENTIFIER ::= {airstationPro 5}
+
+
+-- ************************************************************************
+
+-- aspClientMonitorGroup - AirStation Client Monitor information MIB
+
+-- ************************************************************************
+
+aspClientMonitorTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspClientMonitorEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of clients AirStation handles. This list contains
+		all kind of hosts or entities regardless wireless or ethernet."
+	::= {aspClientMonitorGroup 1}
+
+aspClientMonitorEntry OBJECT-TYPE
+	SYNTAX AspClientMonitorEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"An interface entry of objects containing information for the 
+		clients."
+	INDEX  { aspCmMacAddress }
+	::= {aspClientMonitorTable 1}
+
+AspClientMonitorEntry ::= SEQUENCE {
+	aspCmIndex						Integer32,
+	aspCmIfIndex					Integer32,
+	aspCmMacAddress					MacAddress,
+	aspCmAssociatedVlan				Integer32,
+	aspCmMediaType					Integer32,
+	aspCmWlanAuthType				OCTET STRING,
+	aspCmWlanAuthStatus				Integer32,
+	aspCmWlanCipherType				OCTET STRING,
+	aspCmDot11Capability			Integer32,
+	aspCmDot11nCapability			Integer32,
+	aspCmDot11nAddCapability		Integer32,
+	aspCmDot11nTxAggregationType	Integer32
+}
+
+
+aspCmIndex OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"A sequence number of entity contains on the Client Monitor.
+		This number is identical and statically that is not changed
+		for reassociation or any status change."
+    ::= { aspClientMonitorEntry 1 }
+
+aspCmIfIndex OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"An ifIndex number the entity belongs to. If the entity is wireless
+		device, The entity of aspCmIfIndex will show the wireless infrastructure 
+		device. If the entity is Ethernet device or wireless device associated 
+		with non-directly, aspCmIfIndex shows the ingress port that AirStation's 
+		FDB learned."
+    ::= { aspClientMonitorEntry 2 }
+
+aspCmMacAddress OBJECT-TYPE
+	SYNTAX MacAddress
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"Entity's MAC Address. This address is assigned by its device manufacturers
+		 and shows uniquely identifier for any Ethernet-like devices."
+    ::= { aspClientMonitorEntry 3 }
+
+aspCmAssociatedVlan OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"VLAN ID assigned for the entity. If the VLAN policy assigned for the 
+		aspCmIfIndex is statically, this value may the same as VLAN ID designated
+		to the aspCmIfIndex. If assigning policy is dynamic, this object shows VLAN
+		ID assigned to the entity currently."
+    ::= { aspClientMonitorEntry 4 }
+
+aspCmMediaType OBJECT-TYPE
+	SYNTAX INTEGER {
+					other(1),
+					wlan-infra(2)
+					}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"The type of the entity. This value may depend on the source database AirStation
+		referred. This object shows each of the following parameters: 
+		{other(1), wlan_infra(2)}"
+    ::= { aspClientMonitorEntry 5 }
+
+aspCmWlanAuthType OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE(4))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object shows authentication security method AirStation apply to the entity.
+		If the Entity's aspCmIfIndex is Ethernet without any authentication this object 
+		shows Open(0x00074000)."
+    ::= { aspClientMonitorEntry 6 }
+
+aspCmWlanAuthStatus OBJECT-TYPE
+	SYNTAX INTEGER {
+                    other(1),
+                    unknown(2),
+                    disconnected(3),
+                    authenticated(4),
+                    associated(5),
+                    authorized(6)
+                    }
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object shows currently status of the authentication of aspCmWlanAuthType 
+		indicates."
+    ::= { aspClientMonitorEntry 7 }
+
+aspCmWlanCipherType OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE(4))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object is appear only if the aspCmMediaType is wlan_infra. The cipher method
+		using for unicast communication is shown."
+    ::= { aspClientMonitorEntry 8 }
+
+aspCmDot11Capability OBJECT-TYPE
+	SYNTAX 			Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object is appear only if the aspCmMediaType is wlan_infra. aspCmDot11Capability
+		shows the bit-array parameter related on IEEE802.11 defined capability bit using for
+		association or reassociation."
+    ::= { aspClientMonitorEntry 9 }
+
+aspCmDot11nCapability OBJECT-TYPE
+	SYNTAX 			Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object is appear only if the aspCmMediaType is wlan_infra and supports IEEE802.11n
+		defined rateset. aspCmDot11nCapability shows the bit-array value related on IEEE802.11n 
+		defined capability bit using for association or reassociation."
+    ::= { aspClientMonitorEntry 10 }
+
+aspCmDot11nAddCapability OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object is appear only if the aspCmMediaType is wlan_infra and supports IEEE802.11n
+		defined rateset. aspCmDot11nAddCapability shows the bit-array value related on IEEE802.11n 
+		defined additional capability bit using for association or reassociation."
+    ::= { aspClientMonitorEntry 11 }
+
+aspCmDot11nTxAggregationType OBJECT-TYPE
+	SYNTAX INTEGER 	{
+					none(1), 
+					private(2), 
+					ampdu(3), 
+					amsdu(4)
+						}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"This object is appear only if the aspCmMediaType is wlan_infra and supports IEEE802.11n
+		capability. The object show the aggregation method that using for transmission of the 
+		AirStation. "
+    ::= { aspClientMonitorEntry 12 }
+
+-- ************************************************************************
+
+-- aspClientMonitorGroup - End
+
+-- ************************************************************************
+
+
+
+-- ************************************************************************
+
+-- aspApMonitorGroup - AirStation Accesspoint Monitor information MIB
+
+-- ************************************************************************
+
+-- TBD. This group is not supported on this version.
+
+-- ************************************************************************
+
+-- aspApMonitorGroup - End
+
+-- ************************************************************************
+
+
+-- ************************************************************************
+
+-- aspWlanGroup - AirStation IEEE802.11 Wireless specific information MIB
+
+-- ************************************************************************
+
+aspWlanInterfaceTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanInterfaceEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex that specific for IEEE802.11 complaint
+		 wireless configuration. This table contains interface type
+		 specification for the interface respectively."
+	::= {aspWlanGroup 1}
+
+aspWlanInterfaceEntry OBJECT-TYPE
+	SYNTAX AspWlanInterfaceEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries for the ifIndex that only for IEEE802.11 complaint
+		 wireless configuration. This table contains interface type
+		 specification for the interface respectively."
+	INDEX  { ifIndex }
+	::= {aspWlanInterfaceTable 1}
+
+AspWlanInterfaceEntry ::= SEQUENCE {
+	aspWlanIfType	Integer32
+}
+
+aspWlanIfType OBJECT-TYPE
+	SYNTAX	INTEGER	{
+				other(1),
+				bss-physical(2),
+				bss-virtual(3),
+				wds-virtual(4),
+				station-physical(5),
+				station-virtual(6)
+						}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanIfType shows the type of the interface. This type 
+		 categorizes the role for the IEEE802.11 mode and the relation
+		 of the physival interface. '-physical' shows the ifIndex shows
+		 the configuration or status for the physical device (e.g.
+		 includes the status for channel, band or other physical 
+		 specification). for '-virtual' shows only for independent
+		 mac-layer related configuration/status value."
+    ::= { aspWlanInterfaceEntry 1 }
+
+-- ************************************************************************
+
+aspWlanPhysTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanPhysEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex that shows physical related configuration /
+		 status. This table is valid only for the physical interface defined
+		 in aspWlanIfType."
+	::= {aspWlanGroup 2}
+
+aspWlanPhysEntry OBJECT-TYPE
+	SYNTAX AspWlanPhysEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries for the ifIndex that shows physical related configuration /
+		 status. This table is valid only for the physical interface defined
+		 in aspWlanIfType."
+	INDEX  { ifIndex }
+	::= {aspWlanPhysTable 1}
+
+AspWlanPhysEntry ::= SEQUENCE {
+	aspWlanPhysRadioEnable		TruthValue,
+	aspWlanPhysFreqChannel		Integer32,
+	aspWlanPhysCapability		Integer32,
+	aspWlanPhysTxPowerNominalHectoDbm	Integer32,
+	aspWlanPhysTxPowerCurrentHectoDbm	Integer32
+}
+
+
+aspWlanPhysRadioEnable OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysRadioEnable shows whether the radio functionality of the
+		 physical interface is functional or not. If the value is 'false' the
+		 radio functionality is disabled. "
+    ::= { aspWlanPhysEntry 1 }
+
+aspWlanPhysFreqChannel OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysFreqChannel shows the operating frequency channel the
+		 interface using. Actual channel value of the interface is described
+		 on the conbination of aspWlanPhysCtlChannel/aspWlanPhysCenterChannel
+		 that is designated aspWlanFreqIndex value by this object."
+    ::= { aspWlanPhysEntry 2 }
+
+aspWlanPhysCapability OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysCapability shows the characteristic of this physical 
+		 interface. Bit(0) shows whether the interface is complaint with
+		 IEEE802.11. Bit(1), Bit(2), Bit(3) shows IEEE802.11b, IEEE802.11a, 
+		 IEEE802.11g respectively. If the Bit(4) is asserted shows 
+		 IEEE802.11n based standard with 1SS. Bit(5) shows the IEEE802.11n
+		 complaint with 2SS."
+    ::= { aspWlanPhysEntry 3 }
+
+aspWlanPhysTxPowerNominalHectoDbm OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysTxPowerNominalHectoDbm shows the maximum value of 
+		 radio transmit power output on the interface. Typically this
+		 value is regulated with the law or order administrated by the
+		 national government. Notice that the actual value of this object
+		 is 'Hecto-dBm' that multiples dBm with 100 for the restriction
+		 of the SNMP protocol definition."
+    ::= { aspWlanPhysEntry 4 }
+
+aspWlanPhysTxPowerCurrentHectoDbm OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysTxPowerCurrentHectoDbm shows the current value of 
+		 radio transmit power output on the interface. Typically this
+		 value is lesser than aspWlanPhysTxPowerNominalHectoDbm but not
+		 zero if the radio functionality of this interface is not disabled.
+		 Notice that the actual value of this object is 'Hecto-dBm' that 
+		 multiples dBm with 100 for the restriction of the SNMP protocol
+		 definition."
+    ::= { aspWlanPhysEntry 5 }
+
+-- ************************************************************************
+
+aspWlanPhysFreqTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanPhysFreqEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex and the index that is the list of frequency 
+		 channel the interface capable. These list of table is used for 
+		 representation values of several objects that related on channel
+		 value (aka, aspWlanPhysFreqChannel)."
+	::= {aspWlanGroup 3}
+
+aspWlanPhysFreqEntry OBJECT-TYPE
+	SYNTAX AspWlanPhysFreqEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries for the ifIndex and the index that is the list of frequency 
+		 channel the interface capable. These list of table is used for 
+		 representation values of several objects that related on channel
+		 value (aka, aspWlanPhysFreqChannel)."
+	INDEX  { ifIndex, aspWlanPhysFreqIndex }
+	::= {aspWlanPhysFreqTable 1}
+
+AspWlanPhysFreqEntry ::= SEQUENCE {
+	aspWlanPhysFreqIndex		Integer32,
+	aspWlanPhysCtlChannel		Integer32,
+	aspWlanPhysCenterChannel	Integer32,
+	aspWlanPhysBandwidth		Integer32,
+	aspWlanPhysRegulationStatus	Integer32
+}
+
+
+aspWlanPhysFreqIndex OBJECT-TYPE
+	SYNTAX Integer32 (1..2147483647)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"The index of the aspWlanPhysFreqEntry. this value is used for the 
+		 index of the other objects that realted on channel value."
+    ::= { aspWlanPhysFreqEntry 1 }
+
+aspWlanPhysCtlChannel OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysCtlCtlChannel shows the value of the frequency channel
+		 the inteface currently using. If the interface is operating with 
+		 Dual-Speed mode (using 40MHz band), this object shows the control
+		 side of channel on the frequency band."
+    ::= { aspWlanPhysFreqEntry 2 }
+
+aspWlanPhysCenterChannel OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysCenterChannel shows the value of the frequency channel
+		 the interface currently using. this value shows the center frequency
+		 regardless its band width."
+    ::= { aspWlanPhysFreqEntry 3 }
+
+aspWlanPhysBandwidth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysBandwidth shows the band the interface using. The unit of 
+		 this value is MHz."
+    ::= { aspWlanPhysFreqEntry 4 }
+
+aspWlanPhysRegulationStatus OBJECT-TYPE
+	SYNTAX INTEGER {
+					other(1),
+					non-regulated(2),
+					regulation-quieted(3),
+					regulation-permitted(4)
+				}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanPhysRegulationStatus shows the frequency supression information
+		 that defined by Regulation restriction. non-regulated(2) shows this 
+		 frequency channel is not restricted by the regulation. regulation-quieted(3)
+		 shows the channel is suppressed (e.g., radar detected). regulation-permitted(4)
+		 shows not supressed channel (passes CAC if required)."
+    ::= { aspWlanPhysFreqEntry 5 }
+
+
+-- ************************************************************************
+
+aspWlanVirtInfraTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanVirtInfraEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of ifIndex that shows configuration / status for virtual infrastructure 
+		 interface. This table is valid only for virtual infrastructure interface defined 
+		 in aspWlanPhysTable."
+	::= {aspWlanGroup 4}
+
+aspWlanVirtInfraEntry OBJECT-TYPE
+	SYNTAX AspWlanVirtInfraEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries for the ifIndex that shows configuration / status for virtual infrastructure 
+		 interface. This table is valid only for virtual infrastructure interface defined 
+		 in aspWlanPhysTable."
+	INDEX  { ifIndex }
+	::= {aspWlanVirtInfraTable 1}
+
+AspWlanVirtInfraEntry ::= SEQUENCE {
+	aspWlanVirtInfraParentIfIndex	Integer32
+}
+
+aspWlanVirtInfraParentIfIndex OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanVirtInfraParentIfIndex shows the parent interface this interface belongs
+		 to. The designated parent interface shold be 'bss-physical' interface that 
+		 defined on aspWlanIfType."
+    ::= { aspWlanVirtInfraEntry 1 }
+
+
+-- ************************************************************************
+
+aspWlanVirtWdsTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanVirtWdsEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex that shows configuration / status of the virtual 
+		 WDS interface. This table is valid only for virtual WDS interface defined
+		 in aspWlanPhysTable."
+	::= {aspWlanGroup 5}
+
+aspWlanVirtWdsEntry OBJECT-TYPE
+	SYNTAX AspWlanVirtWdsEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries of the ifIndex that shows configuration / status of the virtual 
+		 WDS interface. This table is valid only for virtual WDS interface defined
+		 in aspWlanPhysTable."
+	INDEX  { ifIndex }
+	::= {aspWlanVirtWdsTable 1}
+
+AspWlanVirtWdsEntry ::= SEQUENCE {
+	aspWlanVirtWdsParentIfIndex		Integer32,
+	aspWlanVirtWdsPeerMacAddress	MacAddress
+}
+
+aspWlanVirtWdsParentIfIndex OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanVirtWdsParentIfIndex shows the parent interface this interface belongs
+		 to. The designated parent interface shold be 'bss-physical' interface that 
+		 defined on aspWlanIfType."
+    ::= { aspWlanVirtWdsEntry 1 }
+
+aspWlanVirtWdsPeerMacAddress OBJECT-TYPE
+	SYNTAX MacAddress
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanVirtWdsPeerMacAddress shows the MAC address of the Accesspoint/Bridge
+		 WDS interface that is placed on the opposite side of wireless bridge."
+    ::= { aspWlanVirtWdsEntry 2 }
+
+
+-- ************************************************************************
+
+aspWlanSecurity		OBJECT IDENTIFIER ::= {aspWlanGroup 6}
+
+-- ************************************************************************
+
+aspWlanSecAuthTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanSecAuthEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAuthTable shows objects concern with wlan authentication
+		method information."
+	::= {aspWlanSecurity 1}
+
+aspWlanSecAuthEntry OBJECT-TYPE
+	SYNTAX AspWlanSecAuthEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAuthEntry shows objects concern with wlan authentication 
+		method information of each WLAN infrastructure interface that indicates
+		ifindex."
+	INDEX  { ifIndex, aspWlanSecAuthIndex }
+	::= {aspWlanSecAuthTable 1}
+
+AspWlanSecAuthEntry ::= SEQUENCE {
+	aspWlanSecAuthIndex		Integer32,
+	aspWlanSecAuthMethod	OCTET STRING,
+	aspWlanSecAuthEnabled	TruthValue
+}
+
+aspWlanSecAuthIndex OBJECT-TYPE
+	SYNTAX Integer32 (1..2147483647)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAuthIndex shows the index number of aspWlanSecAuthEntry. This
+		index is used only for this table and indicates arbitrary sequential index
+		of authentication method from 1 to 255. If the entry ifIndex interface has
+		only one AKM method the number of index will be only one."
+    ::= { aspWlanSecAuthEntry 1 }
+
+aspWlanSecAuthMethod OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE (4))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAuthMethod indicates acceptable authentication method in the. the coding 
+		format of this object is based on AKM suites selector format defined on 
+		IEEE802.11-2007 section7.3.2.25.2. and extensions defined by Buffalo."
+    ::= { aspWlanSecAuthEntry 2 }
+
+aspWlanSecAuthEnabled OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAuthEnabled indicates the a"
+    ::= { aspWlanSecAuthEntry 3 }
+
+-- ************************************************************************
+
+aspWlanSecAddAuthTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanSecAddAuthEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex and the index for the variant of additional authentication
+		 method the interface supported or curently using."
+	::= {aspWlanSecurity 2}
+
+aspWlanSecAddAuthEntry OBJECT-TYPE
+	SYNTAX AspWlanSecAddAuthEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries for the ifIndex and the index for the variant of additional authentication
+		 method the interface supported or currently using."
+	INDEX  { ifIndex, aspWlanSecAddAuthIndex }
+	::= {aspWlanSecAddAuthTable 1}
+
+AspWlanSecAddAuthEntry ::= SEQUENCE {
+	aspWlanSecAddAuthIndex		Integer32,
+	aspWlanSecAddAuthMethod	OCTET STRING,
+	aspWlanSecAddAuthEnabled	TruthValue
+}
+
+aspWlanSecAddAuthIndex OBJECT-TYPE
+	SYNTAX Integer32 (1..2147483647)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAddAuthIndex shows the index of additional authentication method that 
+		 the interface supported."
+    ::= { aspWlanSecAddAuthEntry 1 }
+
+aspWlanSecAddAuthMethod OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE (4))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAddAuthMethod shows the method of the additional authentication the 
+		 interface supported."
+    ::= { aspWlanSecAddAuthEntry 2 }
+
+aspWlanSecAddAuthEnabled OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecAddAuthMethod shows the method of the additional authentication the 
+		 interface currently enabled. If the value is 'true' the method described on the 
+		 aspWlanSecAddAuthMethod is currenly supported."
+
+    ::= { aspWlanSecAddAuthEntry 3 }
+
+-- ************************************************************************
+
+aspWlanSecCipherTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanSecCipherEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex and the index for the variant of cippher suires 
+		 the interface supported or curently using."
+	::= {aspWlanSecurity 3}
+
+aspWlanSecCipherEntry OBJECT-TYPE
+	SYNTAX AspWlanSecCipherEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"Entries of the ifIndex and the index for the variant of cippher suires
+		 the interface supported or curently using."
+	INDEX  { ifIndex, aspWlanSecCipherIndex }
+	::= {aspWlanSecCipherTable 1}
+
+AspWlanSecCipherEntry ::= SEQUENCE {
+	aspWlanSecCipherIndex		Integer32,
+	aspWlanSecCipherMethod	OCTET STRING,
+	aspWlanSecCipherEnabled	TruthValue
+}
+
+aspWlanSecCipherIndex OBJECT-TYPE
+	SYNTAX Integer32 (1..2147483647)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecCipherIndex shows the index of cipher suite."
+    ::= { aspWlanSecCipherEntry 1 }
+
+aspWlanSecCipherMethod OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE (4))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecCipherMethod shows the cipher suites the interface supported."
+    ::= { aspWlanSecCipherEntry 2 }
+
+aspWlanSecCipherEnabled OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecCipherEnabled shows whether the cipher suites currently enabled.
+		 If the value is 'true' the cipher suite designated on aspWlanSecCipherMethod
+		 that has the same index is currently supported."
+    ::= { aspWlanSecCipherEntry 3 }
+
+-- ************************************************************************
+
+aspWlanSecOptionTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspWlanSecOptionEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the ifIndex that contains option category of the
+		 wireless security configuration."
+	::= {aspWlanSecurity 4}
+
+aspWlanSecOptionEntry OBJECT-TYPE
+	SYNTAX AspWlanSecOptionEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A entry of the ifIndex that contains option category of the
+		 wireless security configuration."
+	INDEX  { ifIndex }
+	::= {aspWlanSecOptionTable 1}
+
+AspWlanSecOptionEntry ::= SEQUENCE {
+	aspWlanSecOptClosed		TruthValue,
+	aspWlanSecOptPsMode		Integer32
+}
+
+aspWlanSecOptClosed OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecOptClosed shows the configuration for ANY Rejection
+		(SSID-Stealth) If the value is True the ANY Rejection on this 
+		interface is set to 'Closed(Reject the request).'"
+    ::= { aspWlanSecOptionEntry 1 }
+
+aspWlanSecOptPsMode OBJECT-TYPE
+	SYNTAX INTEGER	{
+							none(1),
+							sta(2),
+							ssid(3)
+						}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspWlanSecOptPsMode shows the configuration of 'Privacy Separator'
+		 capability. "
+    ::= { aspWlanSecOptionEntry 2 }
+
+-- ************************************************************************
+
+-- aspWlanGroup - End
+
+-- ************************************************************************
+
+
+
+-- ************************************************************************
+
+-- aspInterfaceGroup - AirStation Interface information MIB
+
+-- ************************************************************************
+
+aspInterfaceTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspInterfaceEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A list of the network interfaces of equipped on AirStation.
+		 This table provides additional information of ifIndex objects
+		 tree."
+	::= {aspInterfaceGroup 1}
+
+aspInterfaceEntry OBJECT-TYPE
+	SYNTAX AspInterfaceEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A entry of the network interfaces equipped on AirStation. This
+		 table provides additional information of ifIndex objects tree."
+	INDEX  { ifIndex }
+	::= {aspInterfaceTable 1}
+
+AspInterfaceEntry ::= SEQUENCE {
+	aspInterfaceIfIndex	Integer32,
+	aspInterfaceTptrunk	TruthValue
+}
+
+aspInterfaceIfIndex OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"The index number of the interface that is associated to 
+		ifIndex."
+    ::= { aspInterfaceEntry 1 }
+
+aspInterfaceTptrunk OBJECT-TYPE
+	SYNTAX TruthValue
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspInterfaceTptrunk shows trunking policy that defined on 
+		 IEEE802.1D. If true, aspInterfaceTptrunk shows the interface
+		 accepts trunk format frame that defined IEEE802.1Q/1D and
+		 forward frames that has any number of VLAN ID frames. This
+		 configuration is so-called 'Transparent Trunking'"
+    ::= { aspInterfaceEntry 2 }
+
+-- ************************************************************************
+
+-- aspInterfaceGroup - End
+
+-- ************************************************************************
+
+
+-- ************************************************************************
+
+-- aspSystemInfoGroup - AirStation System information MIB
+
+-- ************************************************************************
+
+aspSystemLoadTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AspSystemLoadEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"aspSystemLoadTable is a list that shows the load information of the processor 
+		that equipped on the system."
+	::= {aspSystemInfoGroup 1}
+
+aspSystemLoadEntry OBJECT-TYPE
+	SYNTAX AspSystemLoadEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"aspSystemLoadEntry is a entry that shows the load information of the processor
+		that equipped on the system."
+	INDEX  { aspLoadIndex }
+	::= {aspSystemLoadTable 1}
+
+AspSystemLoadEntry ::= SEQUENCE {
+	aspLoadIndex	Integer32,
+	aspLoadNames	OCTET STRING,
+	aspLoadValueHi	Integer32,
+	aspLoadValueLo	Integer32
+}
+
+
+aspLoadIndex OBJECT-TYPE
+	SYNTAX Integer32 (1..2147483647)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspLoadIndex is a unique sequential number on the aspSystemLoadEntry that
+		assigned to each load entity, currently that named 'active' (active is the 
+		time occupied with processes) and 'idle' (idle is the time that is not
+		occupied or futile processing by any processes)."
+    ::= { aspSystemLoadEntry 1 }
+
+aspLoadNames OBJECT-TYPE
+	SYNTAX OCTET STRING (SIZE (64))
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspLoadNames shows the name of the kind of the processing."
+    ::= { aspSystemLoadEntry 2 }
+
+aspLoadValueHi OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspLoadValueHi is a upper counter that shows processor load time
+		that unit is 1/100 msec. Due to the aspLoadValueHi is defined as
+		upper counter, the actually occupied time indicates the sum of 
+		aspLoadValueLo and 32bit-shifted aspLoadValueHi."
+    ::= { aspSystemLoadEntry 3 }
+
+aspLoadValueLo OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"aspLoadValueLo is a lower counter that shows processor load time
+		that unit is 1/100 msec. Due to the aspLoadValueHi is defined as
+		upper counter, the actually occupied time indicates the sum of 
+		aspLoadValueLo and 32bit-shifted aspLoadValueHi."
+    ::= { aspSystemLoadEntry 4 }
+
+
+-- ************************************************************************
+
+-- aspSystemInfoGroup - End
+
+-- ************************************************************************
+
+END

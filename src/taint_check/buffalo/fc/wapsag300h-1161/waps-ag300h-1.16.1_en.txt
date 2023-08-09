@@ -1,0 +1,205 @@
+﻿*************************************************************************
+*     WAPS-AG300H Firmware Release Notes                                *
+*                                                                       *
+*                                      Version 1.16.1 (2015/10/28)      *
+*                                       Copyright 2015 Buffalo Inc.     *
+*************************************************************************
+
+These release notes are for the WAPS-AG300H firmware update. Please read 
+before updating the firmware.
+
+ ------------------------------------------------------------------------
+1. Release Version
+
+ This firmware is version 1.16.1. You can see your WAPS-AG300H's current 
+ firmware version from the "System Information" page in Settings.
+
+
+ ------------------------------------------------------------------------
+2. Supported Model
+
+  - WAPS-AG300H
+
+
+ ------------------------------------------------------------------------
+3. How to Update
+
+ To update the firmware,
+   
+   1. Log in to Settings.
+   2. Click 'Update'.
+   3. Click 'Browse' and navigate to the firmware file.
+   4. Click 'Update'.
+   5. The firmware update starts.
+
+
+ ------------------------------------------------------------------------
+4. Manuals
+
+ - WAPS-AG300H user manual
+
+
+ ------------------------------------------------------------------------
+5. New Features
+
+Additional features from v1.14.0 to v1.16.1 are listed below:
+
+(WLS-ADT)
+ - Now supports group administration for WLS-ADT.
+
+ ------------------------------------------------------------------------
+6. Modified Features
+
+Modified features from v1.14.0 to v1.16.1 are listed below:
+
+(Firmware Update）
+ - Disables wireless functionality during firmware update because firmware may not be updated successfully when wireless functionality is enabled. Because of this modification, the progress bar will not refresh if the device is connected to the AirStation wirelessly. After the diag LED turns off, log in to Settings and check if the firmware version was updated.
+
+(Wireless)
+ - "STA Exceed maximum STA number of SSID." message will be displayed on syslog when the maximum number of connected devices (configured in "Load Balancing" section on "Security" page) is reached.
+
+ - The signal strength displayed on "Wireless Monitor" and "Clients" page is described using RSSI(dBm).
+
+(RADIUS)
+ - Session timeout will be 60 seconds when an unconfigurable value (1-59 seconds) is set.
+
+ ------------------------------------------------------------------------
+7. Bug Fixes
+
+Fixed bugs from v1.14.0 to v1.16.1 are listed below:
+
+(Wireless)
+ - Fixed the issue where 11g beacon sometimes stopped.
+
+(VLAN)
+ - Fixed the issue where multiple VLAN settings did not function properly.
+
+(RADIUS)
+ - Modified to reauthenticate without disconnecting wireless connection from a client after the session timeout if "Termination Action" attribute is "RADIUS-Request".
+
+ - Fixed the issue where some wireless clients could not be authenticated using EAP authentication.
+
+(WDS)
+ - Fixed the issue where the AirStation sometimes could not communicate with any registered access points when a MAC address on the access point list was deleted on [Wireless Settings] - [WDS] page.
+
+ - Fixed the issue where the wireless throughput sometimes dropped about 10-20% if VLAN settings of wired interface or WDS interface were changed when using WDS.
+
+(USB Log)
+ - Fixed the issue where the previous boot's log was overwritten after restarting the AirStation when the log was configured to be transferred to a USB device.
+
+(SNMP)
+ - Fixed the issue where the number of packets could not be obtained properly from "ifInUcastPkts" object.
+
+(system)
+ - Fixed the issue where the AirStation sometimes hanged up.
+
+(syslog)
+ - Fixed the issue where the "ICV error" log was put out excessively when using WDS.
+
+ ------------------------------------------------------------------------
+8. Notes
+
+- EAP Authentication
+If you are using a server that is not compatible with RADIUS accounting as an external RADIUS server, disable accounting. You may not be able to configure the device after the setting is changed. If the AirStation cannot be authenticated, reboot the AirStation.
+This bug will be fixed in a future firmware revision.
+
+
+ <Booting from USB Flash Memory>
+
+ This model can boot from a USB memory device with the firmware file on it.
+ The USB device should meet the following conditions:
+
+  - The USB memory device should be compatible with WAPS.
+  - The USB memory device should be writable and have at least 16 MB of available space.
+  - The USB memory device should be formatted with FAT12, FAT16, or FAT32 using Buffalo's format utility with default settings.
+  - The USB memory device should be connected directly (do not use a hub).
+
+ You can create a new usable USB memory device using the following procedure:
+
+  1. Create a folder named "WAPS-AG300H" on the root directory of the USB memory device.
+  2. Copy the firmware file to the "WAPS-AG300H" folder.
+  3. Attach the USB memory device to the WAPS-AG300H, then power it on.
+
+ Do not change the name of the firmware file. The AirStation may not boot if the firmware filename has been changed.
+
+ There should be only one firmware file on the USB memory device. If there are other files, the AirStation may attempt to select one of them. Do not have more than one file on the USB memory device when booting the AirStation.
+
+ If there is no valid firmware file on the USB memory device, the AirStation will boot from internal memory.
+
+ The AirStation's internal memory will be updated when you update its firmware from Settings even if it was booted from USB memory device.
+
+ If you boot the AirStation and update firmware from the same USB memory device, the settings saved in the AirStation will be initialized after firmware is updated. 
+
+
+ <Using AOSS with multiple SSIDs>
+
+ If AOSS is enabled, it will reserve 4 of the 5 available SSIDs. Only one SSID will be available for your manual settings.
+
+
+ <AOSS Security>
+
+ If AOSS is enabled, client isolation and and key renewal settings from SSID 1 are used.
+
+ AOSS will use security settings from SSID 1 unless the pre-shared key includes spaces or is a 64-bit hexadecimal number.
+
+
+ <WPS Security>
+
+ If SSID 1 is configured with WEP or TKIP, WPS may not work with SSID 1. Use SSID 2, SSID 3, SSID 4, or SSID 5 instead.
+
+
+ <Using AOSS and WPS-PBC Together>
+
+ If both WPS and AOSS are enabled, and the AOSS button is enabled, both security methods are available. The standby time for AOSS and WPS will be 2 minutes in this scenario.
+
+ The standby time will be 3 minutes under the following conditions:
+
+  - Pushing the physical AOSS button while WPS is disabled
+  - Clicking 'Start AOSS' or the AOSS icon in Settings
+
+
+<Notice for Firmware Update>
+ - The progress bar will not refresh if the device is connected to the AirStation wirelessly because wireless functionality is disabled during firmware update. After the diag LED turns off, log in to Settings and check if the firmware version was updated.
+
+
+ <Wi-Fi Certification>
+
+ WAPS-AG300H is certified by the Wi-Fi Alliance for the following standards:
+ 
+  - WPA - Personal
+  - WPA - Enterprise
+  - WPA2 - Personal
+  - WPA2 - Enterprise
+  - Extended EAP (TLS/TTLS/PEAPv0/PEAPv1-GTC/SIM/AKA/FAST)
+  - WMM (Wi-Fi MultiMedia)
+  - WMM PowerSave
+  - 11N
+  - Wi-Fi Protected Setup
+  - PIN, PBC, Internal Registrars, External Registrars
+
+ For the latest information, refer to the Wi-Fi Alliance's website. 
+ The CID for the WAPS-AG300H is "WFA15575".
+ 
+ http://certifications.wi-fi.org/wbcs_certified_products.php?lang=en
+
+
+ <Licenses>
+ 
+ A part of this software is provided by open source modules based on 
+ the GNU General Public License. You can download the source code 
+ from our website: http://opensource.buffalo.jp/.
+
+ This product includes software developed by the OpenSSL Project for use 
+ in the OpenSSL Toolkit (http://www.openssl.org/)
+
+ Copyright 1983-2000 by the Regents of the University of California.
+ All rights reserved.
+
+ Copyright 1989, 1991, 1992 by Carnegie Mellon University
+
+ Copyright 2015 Buffalo Inc. All rights reserved. 
+
+ ------------------------------------------------------------------------
+ - All rights for the software except for open source modules are reserved 
+   by Buffalo Inc.
+ ------------------------------------------------------------------------
